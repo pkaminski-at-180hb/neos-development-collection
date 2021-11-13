@@ -32,6 +32,7 @@ use Neos\Utility\Unicode\Functions as UnicodeFunctions;
 use Neos\Media\Domain\Model\Adjustment\ImageAdjustmentInterface;
 use Neos\Media\Exception\ImageFileException;
 use Neos\Media\Exception\ImageServiceException;
+use Neos\Media\Domain\Model\Adjustment\AutorotateImageAdjustment;
 
 /**
  * An image service that acts as abstraction for the Imagine library
@@ -93,15 +94,20 @@ class ImageService
      * @param PersistentResource $originalResource
      * @param array $adjustments
      * @param string $format
+     * @param boolean $autorotate if true automatically prepends an autorotation adjustment to the $adjustments array
      * @return array resource, width, height as keys
      * @throws ImageFileException
      * @throws InvalidConfigurationException
      * @throws Exception
      */
-    public function processImage(PersistentResource $originalResource, array $adjustments, string $format = null)
+    public function processImage(PersistentResource $originalResource, array $adjustments, string $format = null, $autorotate = true)
     {
         $additionalOptions = [];
         $adjustmentsApplied = false;
+
+        if ($autorotate && array_filter()) {
+            array_unshift($adjustments, new AutorotateImageAdjustment());
+        }
 
         // TODO: Special handling for SVG should be refactored at a later point.
         if ($originalResource->getMediaType() === 'image/svg+xml') {
